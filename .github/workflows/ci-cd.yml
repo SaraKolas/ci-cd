@@ -22,6 +22,21 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-      # 🚦 Quality Gate (blocks deploy if failed)
+      # 🚦 Quality Gate
       - name: SonarQube Quality Gate
-        uses: sonarsource/sonarqube-quality-gat
+        uses: sonarsource/sonarqube-quality-gate-action@v1.1.0
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # 🚀 Deploy to EC2
+      - name: SSH into EC2 and deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker rm -f python-app || true
+            docker build -t python-app .
+            docker run -d -p 5000:5000 --name python-app python-app
