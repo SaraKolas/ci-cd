@@ -40,3 +40,49 @@ jobs:
             docker rm -f python-app || true
             docker build -t python-app .
             docker run -d -p 5000:5000 --name python-app python-app
+
+      # ✅ Email on SUCCESS
+      - name: Send Success Email
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: 3.238.32.56
+          server_port: 1025
+          subject: "CI/CD Pipeline SUCCESS 🚀"
+          body: |
+            Hello Sara,
+
+            Your CI/CD pipeline completed successfully.
+
+            - Repository: ci-cd
+            - SonarQube Quality Gate: PASSED
+            - Deployment: SUCCESS
+            - EC2: 3.238.32.56
+
+            Regards,
+            CI/CD Pipeline
+          to: devops@local.dev
+          from: ci-cd@local.dev
+
+      # ❌ Email on FAILURE
+      - name: Send Failure Email
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: 3.238.32.56
+          server_port: 1025
+          subject: "CI/CD Pipeline FAILED ❌"
+          body: |
+            Hello Sara,
+
+            Your CI/CD pipeline FAILED.
+
+            Please check GitHub Actions logs for details.
+
+            - Repository: ci-cd
+            - EC2: 3.238.32.56
+
+            Regards,
+            CI/CD Pipeline
+          to: devops@local.dev
+          from: ci-cd@local.dev
